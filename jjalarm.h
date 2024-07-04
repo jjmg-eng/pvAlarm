@@ -115,7 +115,7 @@ void alarmInit(PARAM *p, int idGroupBox, int idHTML, int idDOCK)
     pvSetGeometry(p,idHTML,5,1,570,110);
     pvSetFont(p,idHTML,"Arial",10,0,0,0,0);
 
-    pvAddDockWidget(p, pvtr("ALARMES G1"), idDOCK, idGroupBox, 1,1,0,0,0,0);
+    pvAddDockWidget(p, pvtr("ALARMES/EVENTOS"), idDOCK, idGroupBox, 1,1,0,0,0,0);
     pvDownloadFile(p,"/home/jjmg/PVprojects/sounds/alarm.wav");
 }
 
@@ -144,16 +144,20 @@ void alarmNullEvent(PARAM *p, int idHTML, int idDOCK)
       pvStatusMessage(p,0,255,0,"Normal operation");
       pvHide(p,idDOCK);
     }
+    myalarm.ackblk = 0;
 }
 
 void alarmTextEvent(const char *text)
 {
-  int a = (atoi(strrchr(text,'a')+1) - 1);
-  AlarmNotAck[a / 32] &= ~ (1 << (a % 32));
-  a++;
-  puts("ACK");
-  puts(myalarm.table.text(2,a));
-  myalarm.ack(text);
+	if(!myalarm.ackblk) {
+	  myalarm.ackblk = 1;
+	  int a = (atoi(strrchr(text,'a')+1) - 1);
+	  AlarmNotAck[a / 32] &= ~ (1 << (a % 32));
+	  a++;
+	  puts("ACK");
+	  puts(myalarm.table.text(2,a));
+	  myalarm.ack(text);
+	}
 }
 
 #endif // _MAIN_
